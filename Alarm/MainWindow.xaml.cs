@@ -28,17 +28,22 @@ namespace Alarm
 		{
 			InitializeComponent();
 			PpAlarm a = new PpAlarm();
+			DrugiAlarm da = new DrugiAlarm();
 			Vatrogasac v1 = new Vatrogasac();
 			Vatrogasac v2 = new Vatrogasac();
 			Policajac p1 = new Policajac();
+
 			Civil c1 = new Civil();
 			a.Alarmm += c1.Panici;
+			//da.AlarmmDva += c1.Panici;
+
 			a.Alarmm += v1.ZvoniAlarm;
 			
 			a.Alarmm += p1.ZvoniAlarm;
 			a.Alarmm += v2.ZvoniAlarm;
 
 			dgm.Click += klik;
+			dgm2.Click += klik;
 
 			a.Zvoni();
 
@@ -51,34 +56,61 @@ namespace Alarm
 		}
 		public void promena(object o, NotifyCollectionChangedEventArgs er)
 		{
-			MessageBox.Show("Promena!");
+			MessageBox.Show(o.ToString());
 		}
 		public void klik(object o, RoutedEventArgs  r)
 		{
-			MessageBox.Show("asd");
+			
+			Button b = (Button)o;
+			if (b.Content.ToString() == "Test")
+				MessageBox.Show(o.ToString());
+			else if (b.Content.ToString() == "Test2")
+				this.Close();
 		}
+	}
+
+
+	public class DrugiAlarm
+	{
+		public delegate void AlarmTip(object KoSalje);
+		public event AlarmTip AlarmmDva;
+		public void ZvoniDrugi()
+		{
+			AlarmmDva?.Invoke(this);
+		}
+	}
+
+	public class AlarmEventArgs : EventArgs
+	{
+
 	}
 
 	public class PpAlarm
 	{
-		public delegate void AlarmTip();
+		public delegate void AlarmTip(object KoSalje, AlarmEventArgs a);
 		public event AlarmTip Alarmm;
 		public void Zvoni()
 		{
-			Alarmm?.Invoke();
+			Alarmm?.Invoke(this, new AlarmEventArgs());
 		}
 	}
 
 	public class Civil
 	{
-		public void Panici() { }
+		public void Panici(object KoSalje, AlarmEventArgs a) 
+		{
+			if (KoSalje is PpAlarm aa)
+				MessageBox.Show("Prvi");
+			else if (KoSalje is DrugiAlarm d)
+				MessageBox.Show("Drugi!");
+		}
 	}
 
 	public class Policajac
 	{
 		public bool CuoAlarm;
 
-		public void ZvoniAlarm()
+		public void ZvoniAlarm(object KoSalje, AlarmEventArgs a)
 		{
 			CuoAlarm = true;
 		}
@@ -88,10 +120,10 @@ namespace Alarm
 	{
 		public bool CuoAlarm;
 
-		public void ZvoniAlarm()
+		public void ZvoniAlarm(object KoSalje, AlarmEventArgs a)
 		{
 			CuoAlarm = true;
-
+			//if (a.temperatura > 10)
 		}
 	}
 }
